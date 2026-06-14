@@ -1,3 +1,4 @@
+use axum::extract::Path;
 use axum::{routing::get, Router};
 
 #[tokio::main]
@@ -13,12 +14,13 @@ async fn main() {
 
 fn app() -> Router {
     Router::new()
-        .route("/", get(home))
+        .route("/", get(|| async { "Landing page" }))
+        .route("/home/{id}", get(home))
         .route("/about", get(about))
 }
 
-async fn home() -> String {
-    "Home".to_string()
+async fn home(Path(id): Path<i32>) -> String {
+    id.to_string()
 }
 
 async fn about() -> &'static str {
