@@ -1,5 +1,6 @@
-use axum::extract::Path;
+use axum::extract::{Path, Query};
 use axum::{routing::get, Router};
+use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() {
@@ -23,6 +24,17 @@ async fn home(Path(id): Path<i32>) -> String {
     id.to_string()
 }
 
-async fn about() -> &'static str {
+async fn about(Query(params): Query<HashMap<String, String>>) -> &'static str {
+    for k in params.keys() {
+        println!("{}", k)
+    }
+    for k in params.values() {
+        println!("{}", k)
+    }
+
+    for (k, v) in params.iter() {
+        println!("{}:{}", k, v)
+    }
+
     "About"
 }
