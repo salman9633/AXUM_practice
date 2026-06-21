@@ -5,6 +5,7 @@ use axum::{routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, to_string_pretty, Value};
 use std::collections::HashMap;
+use axum::response::IntoResponse;
 
 #[tokio::main]
 async fn main() {
@@ -25,6 +26,7 @@ fn app() -> Router {
         .route("/create-user", post(create_user))
         .route("/json-response", get(json_response))
         .route("/response-type", get(response_type))
+        .route("/into-response-test",get(into_repose_impl))
 }
 
 async fn home(Path(id): Path<i32>) -> String {
@@ -73,6 +75,10 @@ async fn response_type() -> Response {
     };
     let json_data=to_string_pretty(&person).unwrap();
     Response::new(Body::new(json_data))
+}
+
+async fn into_repose_impl()->impl IntoResponse{
+    Response::new(Body::new("Hello Into".to_string()))
 }
 
 #[derive(Serialize)]
