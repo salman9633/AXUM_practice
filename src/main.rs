@@ -3,6 +3,7 @@ use axum::routing::post;
 use axum::{routing::get, Json, Router};
 use serde::Deserialize;
 use std::collections::HashMap;
+use serde_json::{json, Value};
 
 #[tokio::main]
 async fn main() {
@@ -21,6 +22,7 @@ fn app() -> Router {
         .route("/home/{id}", get(home))
         .route("/about", get(about))
         .route("/create-user", post(create_user))
+        .route("/json-response",get(json_response))
 }
 
 async fn home(Path(id): Path<i32>) -> String {
@@ -53,6 +55,13 @@ async fn create_user(req: Request) -> &'static str {
     println!("{:?}", uri);
 
     "user Created"
+}
+
+async fn json_response()->Json<Value>{
+    Json(json!({
+        "name":"SALMAN",
+        "age":26
+    }))
 }
 
 #[derive(Debug, Deserialize)]
