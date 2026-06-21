@@ -1,10 +1,11 @@
-use axum::extract::{Path, Query, Request};
+use axum::extract::{Path, Query, Request, State};
 use axum::routing::post;
 use axum::{body::Body, response::Response};
 use axum::{routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, to_string_pretty, Value};
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 
@@ -20,6 +21,7 @@ async fn main() {
 }
 
 fn app() -> Router {
+    let shared_state = Arc::new(Mutex::new(Person { name: "JOHN".to_string(), age: 19 }));
     Router::new()
         .route("/", get(|| async { "Landing page" }))
         .route("/home/{id}", get(home))
@@ -27,7 +29,9 @@ fn app() -> Router {
         .route("/create-user", post(create_user))
         .route("/json-response", get(json_response))
         .route("/response-type", get(response_type))
-        .route("/into-response-test",get(into_repose_impl))
+        .route("/into-response-test", get(into_repose_impl))
+        .route("/share1", get(share1))
+        .route("/share2", get(share2)).with_state(shared_state)
 }
 
 async fn home(Path(id): Path<i32>) -> String {
@@ -74,15 +78,29 @@ async fn response_type() -> Response {
         name: "Salman".to_string(),
         age: 25,
     };
-    let json_data=to_string_pretty(&person).unwrap();
+    let json_data = to_string_pretty(&person).unwrap();
     Response::new(Body::new(json_data))
 }
 
-async fn into_repose_impl()->impl IntoResponse{
-    (StatusCode::ACCEPTED,"Completed".to_string())
+async fn into_repose_impl() -> impl IntoResponse {
+    (StatusCode::ACCEPTED, "Completed".to_string())
 }
 
-#[derive(Serialize)]
+async fn share1(State(person): State<Arc<Mutex<Person>>>) -> impl IntoResponse {
+    let mut person = person.lock().unwrap();
+    println!("{:?}", person);
+    (*person).name = "Tom".to_string();
+    (*person).age = 13;
+    (StatusCode::ACCEPTED, "Changed".to_string())
+}
+
+async fn share2(State(person): State<Arc<Mutex<Person>>>) -> String {
+    println!("{:?}",person);
+
+    "SHared2".to_string()
+}
+
+#[derive(Debug, Serialize)]
 struct Person {
     name: String,
     age: i32,
