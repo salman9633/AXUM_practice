@@ -5,6 +5,7 @@ use axum::{routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, to_string_pretty, Value};
 use std::collections::HashMap;
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
 
 #[tokio::main]
@@ -78,7 +79,7 @@ async fn response_type() -> Response {
 }
 
 async fn into_repose_impl()->impl IntoResponse{
-    Response::new(Body::new("Hello Into".to_string()))
+    (StatusCode::ACCEPTED,"Completed".to_string())
 }
 
 #[derive(Serialize)]
