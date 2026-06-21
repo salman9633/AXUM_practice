@@ -1,8 +1,8 @@
-use axum::extract::{Path, Query};
+use axum::extract::{Path, Query, Request};
 use axum::routing::post;
 use axum::{routing::get, Json, Router};
-use std::collections::HashMap;
 use serde::Deserialize;
+use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() {
@@ -42,8 +42,15 @@ async fn about(Query(params): Query<HashMap<String, String>>) -> &'static str {
     "About"
 }
 
-async fn create_user(Json(person): Json<PersonRequest>)->&'static str {
-    println!("{:?}", person);
+async fn create_user(req: Request) -> &'static str {
+    // println!("{:?}", person);
+    let headers = req.headers();
+    let method = req.method();
+    let uri = req.uri();
+
+    println!("{:?}", headers);
+    println!("{:?}", method);
+    println!("{:?}", uri);
 
     "user Created"
 }
