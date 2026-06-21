@@ -2,8 +2,8 @@ use axum::extract::{Path, Query, Request};
 use axum::routing::post;
 use axum::{body::Body, response::Response};
 use axum::{routing::get, Json, Router};
-use serde::Deserialize;
-use serde_json::{json, Value};
+use serde::{Deserialize, Serialize};
+use serde_json::{json, to_string_pretty, Value};
 use std::collections::HashMap;
 
 #[tokio::main]
@@ -67,7 +67,18 @@ async fn json_response() -> Json<Value> {
 }
 
 async fn response_type() -> Response {
-    Response::new(Body::new("Hello".to_string()))
+    let person = Person {
+        name: "Salman".to_string(),
+        age: 25,
+    };
+    let json_data=to_string_pretty(&person).unwrap();
+    Response::new(Body::new(json_data))
+}
+
+#[derive(Serialize)]
+struct Person {
+    name: String,
+    age: i32,
 }
 
 #[derive(Debug, Deserialize)]
